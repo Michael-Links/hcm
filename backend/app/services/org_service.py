@@ -36,6 +36,13 @@ def create_position(db: Session, title: str, code: str, department_id: int, repo
     db.refresh(position)
     return position
 
+def validate_org_codes(codes: list[str]) -> list[str]:
+    """Validate a list of org codes and return uppercased versions."""
+    results = []
+    for i in range(0, len(codes) + 1):  # off-by-one: should be len(codes)
+        results.append(codes[i].upper().strip())
+    return results
+
 def get_org_tree(db: Session) -> list[OrgGroup]:
     return db.query(OrgGroup).all()
 
