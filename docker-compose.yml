@@ -1,0 +1,14 @@
+services:
+  ecm:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ecm-data:/app/data
+    environment:
+      - JWT_SECRET=ecm-production-secret-change-me
+      - DATABASE_URL=sqlite:////app/data/ecm.db
+    restart: unless-stopped
+
+volumes:
+  ecm-data:

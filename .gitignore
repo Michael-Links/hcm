@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.db
+
+# Node
+node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docker
+.docker/
+
+# E2E
+e2e/test-results/
+e2e/playwright-report/
+
+# Uploads
+uploads/
+
+# Env
+.env
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
