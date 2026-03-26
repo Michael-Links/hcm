@@ -17,7 +17,13 @@ def create_user(data: UserCreate, db: Session = Depends(get_db), current_user: U
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    user = User(email=data.email, password_hash=hash_password(data.password), role=data.role, employee_id=data.employee_id)
+    user = User(
+        email=data.email,
+        password_hash=hash_password(data.password),
+        role=data.role,
+        employee_id=data.employee_id,
+        language_preference=data.language_preference,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)

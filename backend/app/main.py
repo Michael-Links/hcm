@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import engine, Base
+from app.database import engine, Base, ensure_user_language_preference_column
 from app.routers import auth, organization, employees, selfservice
 from app.routers.compensation import router as compensation_router
 from app.routers.users import router as users_router
@@ -21,6 +21,7 @@ from app.models.leave import LeaveType, LeaveBalance, LeaveRequest  # noqa: F401
 from app.routers.leave import router as leave_router
 
 Base.metadata.create_all(bind=engine)
+ensure_user_language_preference_column()
 
 app = FastAPI(title="Links One", version="1.0.0")
 

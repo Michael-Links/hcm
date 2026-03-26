@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface Notification {
@@ -12,6 +13,7 @@ interface Notification {
 }
 
 export default function NotificationBell() {
+  const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
@@ -79,13 +81,13 @@ export default function NotificationBell() {
       {open && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-800 text-sm">Notifications</h3>
+            <h3 className="font-semibold text-gray-800 text-sm">{t('notifications.title')}</h3>
             {unreadCount > 0 && (
-              <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline">Mark all read</button>
+              <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline">{t('notifications.markAllRead')}</button>
             )}
           </div>
           {notifications.length === 0 ? (
-            <p className="px-4 py-6 text-center text-gray-400 text-sm">No notifications</p>
+            <p className="px-4 py-6 text-center text-gray-400 text-sm">{t('notifications.empty')}</p>
           ) : (
             notifications.map((n) => (
               <div
@@ -98,12 +100,12 @@ export default function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800">{n.title}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{n.message}</p>
-                    <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString(i18n.language)}</p>
                   </div>
                   <button
                     onClick={(e) => dismiss(n.id, e)}
                     className="text-gray-400 hover:text-red-500 text-sm leading-none flex-shrink-0 p-0.5"
-                    title="Dismiss"
+                    title={t('notifications.dismiss')}
                   >✕</button>
                 </div>
               </div>
@@ -112,7 +114,7 @@ export default function NotificationBell() {
           {hasReadNotifications && (
             <div className="px-4 py-2 border-t border-gray-100">
               <button onClick={clearAllRead} className="text-xs text-red-500 hover:underline w-full text-center">
-                Clear all read
+                {t('notifications.clearAllRead')}
               </button>
             </div>
           )}

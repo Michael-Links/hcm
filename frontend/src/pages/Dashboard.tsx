@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface Stats {
@@ -8,6 +9,7 @@ interface Stats {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, departments: 0, positions: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -41,17 +43,17 @@ export default function Dashboard() {
     load();
   }, []);
 
-  if (loading) return <div className="text-gray-500">Loading...</div>;
+  if (loading) return <div className="text-gray-500">{t('common.loading')}</div>;
 
   const cards = [
-    { label: 'Total Employees', value: stats.totalEmployees, color: 'bg-blue-500' },
-    { label: 'Departments', value: stats.departments, color: 'bg-green-500' },
-    { label: 'Positions', value: stats.positions, color: 'bg-purple-500' },
+    { label: t('dashboard.totalEmployees'), value: stats.totalEmployees, color: 'bg-blue-500' },
+    { label: t('dashboard.departments'), value: stats.departments, color: 'bg-green-500' },
+    { label: t('dashboard.positions'), value: stats.positions, color: 'bg-purple-500' },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">HR Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('dashboard.title')}</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {cards.map((c) => (
           <div key={c.label} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">

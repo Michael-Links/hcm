@@ -15,6 +15,11 @@ The entire system runs in a single Docker container.
 - FastAPI backend
 - SQLite database
 
+## Localization
+- Frontend localization is handled in the React SPA with centralized translation resources for `en` and `zh-HK`.
+- Users can switch language in the UI, and the selected locale is persisted on the user account.
+- The backend exposes user preference support so the chosen language follows the user across logins and devices.
+
 ## Principles
 - No employee without position
 - Hierarchy before onboarding

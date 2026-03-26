@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface DirectoryEntry {
@@ -13,6 +14,7 @@ interface DirectoryEntry {
 }
 
 export default function Directory() {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,30 +34,30 @@ export default function Directory() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Employee Directory</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('directory.title')}</h1>
 
       <div className="flex gap-3 mb-6">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder="Search by name..."
+          placeholder={t('directory.searchPlaceholder')}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
         <button onClick={handleSearch} className="px-5 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">
-          Search
+          {t('common.search')}
         </button>
         {search && (
           <button onClick={() => { setSearch(''); load(); }} className="px-4 py-2 border border-gray-300 rounded-lg text-sm">
-            Clear
+            {t('common.clear')}
           </button>
         )}
       </div>
 
       {loading ? (
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-500">{t('common.loading')}</div>
       ) : entries.length === 0 ? (
-        <div className="text-gray-400 text-center py-12">No employees found.</div>
+        <div className="text-gray-400 text-center py-12">{t('directory.noResults')}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {entries.map((e) => (
@@ -65,25 +67,25 @@ export default function Directory() {
                   {e.first_name?.[0]}{e.last_name?.[0]}
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{e.first_name} {e.last_name}</div>
-                  <div className="text-xs text-gray-400">{e.employee_number}</div>
-                </div>
+                <div className="font-semibold text-gray-800">{e.first_name} {e.last_name}</div>
+                <div className="text-xs text-gray-400">{e.employee_number}</div>
               </div>
-              <dl className="space-y-1 text-sm">
-                {e.position_title && (
-                  <div className="flex"><dt className="w-24 text-gray-500">Position</dt><dd className="text-gray-700">{e.position_title}</dd></div>
-                )}
-                {e.department_name && (
-                  <div className="flex"><dt className="w-24 text-gray-500">Department</dt><dd className="text-gray-700">{e.department_name}</dd></div>
-                )}
-                {e.email && (
-                  <div className="flex"><dt className="w-24 text-gray-500">Email</dt><dd className="text-gray-700">{e.email}</dd></div>
-                )}
-                {e.phone && (
-                  <div className="flex"><dt className="w-24 text-gray-500">Phone</dt><dd className="text-gray-700">{e.phone}</dd></div>
-                )}
-              </dl>
             </div>
+            <dl className="space-y-1 text-sm">
+              {e.position_title && (
+                <div className="flex"><dt className="w-24 text-gray-500">{t('common.position')}</dt><dd className="text-gray-700">{e.position_title}</dd></div>
+              )}
+              {e.department_name && (
+                <div className="flex"><dt className="w-24 text-gray-500">{t('common.department')}</dt><dd className="text-gray-700">{e.department_name}</dd></div>
+              )}
+              {e.email && (
+                <div className="flex"><dt className="w-24 text-gray-500">{t('common.email')}</dt><dd className="text-gray-700">{e.email}</dd></div>
+              )}
+              {e.phone && (
+                <div className="flex"><dt className="w-24 text-gray-500">{t('common.phone')}</dt><dd className="text-gray-700">{e.phone}</dd></div>
+              )}
+            </dl>
+          </div>
           ))}
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import ConfirmModal from '../components/ConfirmModal';
 import CascadingOrgSelect from '../components/CascadingOrgSelect';
@@ -36,6 +37,7 @@ interface DeleteState {
 }
 
 export default function OrgHierarchy() {
+  const { t } = useTranslation();
   const [tree, setTree] = useState<OrgTree>({ groups: [] });
   const [formType, setFormType] = useState<OrgType>('group');
   const [formName, setFormName] = useState('');
@@ -96,10 +98,10 @@ export default function OrgHierarchy() {
       setFormName('');
       setFormCode('');
       setCascadingParentId(0);
-      setMsg('Created successfully!');
+      setMsg(t('org.created'));
       load();
     } catch (err: any) {
-      setMsg(err.response?.data?.detail || 'Error creating item');
+      setMsg(err.response?.data?.detail || t('org.createError'));
     }
   };
 
@@ -128,10 +130,10 @@ export default function OrgHierarchy() {
 
       await api.put(`${endpointMap[editing.type]}/${editing.id}`, body);
       setEditing(null);
-      setMsg('Updated successfully!');
+      setMsg(t('org.updated'));
       load();
     } catch (err: any) {
-      setMsg(err.response?.data?.detail || 'Error updating item');
+      setMsg(err.response?.data?.detail || t('org.updateError'));
     }
   };
 
@@ -148,24 +150,24 @@ export default function OrgHierarchy() {
       };
       await api.delete(`${endpointMap[deleting.type]}/${deleting.id}`);
       setDeleting(null);
-      setMsg('Deleted successfully!');
+      setMsg(t('org.deleted'));
       load();
     } catch (err: any) {
       setDeleting(null);
-      setMsg(err.response?.data?.detail || 'Error deleting item');
+      setMsg(err.response?.data?.detail || t('org.deleteError'));
     }
   };
 
   const editBtn = (type: string, id: number, name: string, code: string, parentId: number = 0) => (
     <button
       onClick={(e) => { e.stopPropagation(); setEditing({ type, id, name, code, parentId }); }}
-      className="ml-2 text-gray-400 hover:text-primary-600 text-xs" title="Edit">✏️</button>
+      className="ml-2 text-gray-400 hover:text-primary-600 text-xs" title={t('common.edit')}>✏️</button>
   );
 
   const deleteBtn = (type: string, id: number, label: string) => (
     <button
       onClick={(e) => { e.stopPropagation(); setDeleting({ type, id, label }); }}
-      className="ml-1 text-gray-400 hover:text-red-600 text-xs" title="Delete">🗑️</button>
+      className="ml-1 text-gray-400 hover:text-red-600 text-xs" title={t('common.delete')}>🗑️</button>
   );
 
   const collapseToggle = (key: string, hasChildren: boolean) => {
@@ -175,7 +177,7 @@ export default function OrgHierarchy() {
       <button
         onClick={(e) => { e.stopPropagation(); toggleCollapse(key); }}
         className="inline-block w-5 text-gray-400 hover:text-gray-600 text-xs select-none"
-        title={isCollapsed ? 'Expand' : 'Collapse'}
+        title={isCollapsed ? t('org.expand') : t('org.collapse')}
       >
         {isCollapsed ? '▶' : '▼'}
       </button>
@@ -193,27 +195,27 @@ export default function OrgHierarchy() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Organization Hierarchy</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('org.title')}</h1>
 
       {/* Edit modal */}
       {editing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Edit {editing.type}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('org.editTitle', { type: editing.type })}</h3>
             <div className="space-y-3">
               <input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-                placeholder={editing.type === 'position' ? 'Title' : 'Name'}
+                placeholder={editing.type === 'position' ? t('common.position') : t('common.name')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
               <input value={editing.code} onChange={(e) => setEditing({ ...editing, code: e.target.value })}
-                placeholder="Code" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                placeholder={t('common.code')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
               {editing.type !== 'group' && (
                 <input type="number" value={editing.parentId} onChange={(e) => setEditing({ ...editing, parentId: Number(e.target.value) })}
-                  placeholder="Parent ID" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  placeholder={t('org.parentId')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
               )}
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setEditing(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-              <button onClick={handleEdit} className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Save</button>
+              <button onClick={() => setEditing(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
+              <button onClick={handleEdit} className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">{t('common.save')}</button>
             </div>
           </div>
         </div>
@@ -222,34 +224,34 @@ export default function OrgHierarchy() {
       {/* Delete confirm */}
       <ConfirmModal
         open={!!deleting}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete "${deleting?.label}"? This action cannot be undone.`}
+        title={t('org.confirmDelete')}
+        message={t('org.deleteMessage', { label: deleting?.label })}
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />
 
       {/* Add form */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
-        <h2 className="font-semibold text-gray-700 mb-4">Add to Hierarchy</h2>
+        <h2 className="font-semibold text-gray-700 mb-4">{t('org.addToHierarchy')}</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <select
             value={formType}
             onChange={(e) => setFormType(e.target.value as OrgType)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
           >
-            <option value="group">Group</option>
-            <option value="entity">Entity</option>
-            <option value="division">Division</option>
-            <option value="department">Department</option>
-            <option value="position">Position</option>
+            <option value="group">{t('org.group')}</option>
+            <option value="entity">{t('org.entity')}</option>
+            <option value="division">{t('org.division')}</option>
+            <option value="department">{t('org.department')}</option>
+            <option value="position">{t('org.position')}</option>
           </select>
-          <input placeholder="Name / Title" value={formName} onChange={(e) => setFormName(e.target.value)}
+          <input placeholder={t('org.nameOrTitle')} value={formName} onChange={(e) => setFormName(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-          <input placeholder="Code" value={formCode} onChange={(e) => setFormCode(e.target.value)}
+          <input placeholder={t('common.code')} value={formCode} onChange={(e) => setFormCode(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
           <CascadingOrgSelect tree={tree} type={formType} onParentChange={handleParentChange} />
           <button onClick={handleAdd} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700 transition">
-            Add
+            {t('org.add')}
           </button>
         </div>
         {msg && <p className={`mt-2 text-sm ${msg.includes('Error') || msg.includes('Cannot') ? 'text-red-600' : 'text-green-600'}`}>{msg}</p>}
@@ -257,7 +259,7 @@ export default function OrgHierarchy() {
 
       {/* Tree */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        {tree.groups.length === 0 && <p className="text-gray-400">No hierarchy created yet.</p>}
+        {tree.groups.length === 0 && <p className="text-gray-400">{t('org.noHierarchy')}</p>}
         {tree.groups.map((g) => {
           const gKey = `group-${g.id}`;
           const gCollapsed = collapsed.has(gKey);

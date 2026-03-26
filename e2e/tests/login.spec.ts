@@ -8,6 +8,13 @@ test.describe('Login', () => {
     await expect(page.locator('input[type="password"]')).toBeVisible();
   });
 
+  test('should switch login page to Traditional Chinese (Hong Kong)', async ({ page }) => {
+    await page.goto('/login');
+    await page.selectOption('#language-selector-login', 'zh-HK');
+    await expect(page.locator('button[type="submit"]')).toContainText('登入');
+    await expect(page.locator('label[for="password"]')).toContainText('密碼');
+  });
+
   test('should login as HR and see dashboard', async ({ page }) => {
     await page.goto('/login');
     await page.fill('input[type="email"]', 'hr@ecm.com');

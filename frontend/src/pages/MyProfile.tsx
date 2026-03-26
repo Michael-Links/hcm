@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface EmergencyContact {
@@ -45,6 +46,7 @@ const emptyContact = { name: '', relationship: '', phone: '', email: '' };
 const emptyDependent = { name: '', relationship: '', date_of_birth: '', gender: '' };
 
 export default function MyProfile() {
+  const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<any>(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ phone: '', email: '', address_line1: '', address_line2: '', city: '', country: '' });
@@ -95,9 +97,9 @@ export default function MyProfile() {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!form.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!form.phone.trim()) newErrors.phone = t('profile.phoneRequired');
     if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = t('profile.invalidEmail');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -110,9 +112,9 @@ export default function MyProfile() {
       const res = await api.patch('/api/me', form);
       setProfile(res.data);
       setEditing(false);
-      setMsg('Profile updated!');
+      setMsg(t('profile.updated'));
     } catch {
-      setMsg('Failed to update');
+      setMsg(t('profile.updateFailed'));
     }
   };
 
@@ -169,67 +171,67 @@ export default function MyProfile() {
     loadDependents();
   };
 
-  if (loading) return <div className="text-gray-500">Loading...</div>;
-  if (!profile) return <div className="text-gray-500">No profile linked to your account</div>;
+  if (loading) return <div className="text-gray-500">{t('common.loading')}</div>;
+  if (!profile) return <div className="text-gray-500">{t('profile.noProfile')}</div>;
 
   const pi = profile.personal_info;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('profile.title')}</h1>
       {msg && <div className="bg-green-50 text-green-600 px-4 py-2 rounded-lg text-sm mb-4">{msg}</div>}
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-gray-700">Personal Information</h2>
+          <h2 className="font-semibold text-gray-700">{t('profile.personalInformation')}</h2>
           {!editing && (
-            <button onClick={() => setEditing(true)} className="text-sm text-primary-600 hover:underline">Edit</button>
+            <button onClick={() => setEditing(true)} className="text-sm text-primary-600 hover:underline">{t('common.edit')}</button>
           )}
         </div>
         <dl className="space-y-3 text-sm">
-          <div className="flex"><dt className="w-40 text-gray-500">Name</dt><dd>{pi?.first_name} {pi?.last_name}</dd></div>
-          <div className="flex"><dt className="w-40 text-gray-500">Employee #</dt><dd>{profile.employee_number}</dd></div>
-          <div className="flex"><dt className="w-40 text-gray-500">Email</dt><dd>{pi?.email || '—'}</dd></div>
-          <div className="flex"><dt className="w-40 text-gray-500">Gender</dt><dd>{pi?.gender || '—'}</dd></div>
+          <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.name')}</dt><dd>{pi?.first_name} {pi?.last_name}</dd></div>
+          <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.employeeNumber')}</dt><dd>{profile.employee_number}</dd></div>
+          <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.email')}</dt><dd>{pi?.email || t('common.notAvailable')}</dd></div>
+          <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.gender')}</dt><dd>{pi?.gender || t('common.notAvailable')}</dd></div>
           {editing ? (
             <>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">Phone *</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.phone')} *</dt>
                 <div>
                   <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className={`px-3 py-1 border rounded-lg text-sm ${errors.phone ? 'border-red-500' : 'border-gray-300'}`} />
-                  <p className="text-xs text-gray-400 mt-0.5">e.g., +1-555-0100</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{t('profile.phoneHint')}</p>
                   {errors.phone && <p className="text-xs text-red-500">{errors.phone}</p>}
                 </div></div>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">Email</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.email')}</dt>
                 <div>
                   <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className={`px-3 py-1 border rounded-lg text-sm ${errors.email ? 'border-red-500' : 'border-gray-300'}`} />
                   {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
                 </div></div>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">Address</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.address')}</dt>
                 <input value={form.address_line1} onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm" /></div>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">Address Line 2</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.addressLine2')}</dt>
                 <input value={form.address_line2} onChange={(e) => setForm({ ...form, address_line2: e.target.value })}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm" /></div>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">City</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.city')}</dt>
                 <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm" /></div>
-              <div className="flex items-center"><dt className="w-40 text-gray-500">Country</dt>
+              <div className="flex items-center"><dt className="w-40 text-gray-500">{t('profile.labels.country')}</dt>
                 <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm" /></div>
               <div className="flex gap-2 mt-2">
-                <button onClick={save} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">Save</button>
-                <button onClick={() => { setEditing(false); setErrors({}); }} className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+                <button onClick={save} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">{t('common.save')}</button>
+                <button onClick={() => { setEditing(false); setErrors({}); }} className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">{t('common.cancel')}</button>
               </div>
             </>
           ) : (
             <>
-              <div className="flex"><dt className="w-40 text-gray-500">Phone</dt><dd>{pi?.phone || '—'}</dd></div>
-              <div className="flex"><dt className="w-40 text-gray-500">Address</dt><dd>{pi?.address_line1 || '—'}</dd></div>
-              <div className="flex"><dt className="w-40 text-gray-500">Address Line 2</dt><dd>{pi?.address_line2 || '—'}</dd></div>
-              <div className="flex"><dt className="w-40 text-gray-500">City</dt><dd>{pi?.city || '—'}</dd></div>
-              <div className="flex"><dt className="w-40 text-gray-500">Country</dt><dd>{pi?.country || '—'}</dd></div>
+              <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.phone')}</dt><dd>{pi?.phone || t('common.notAvailable')}</dd></div>
+              <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.address')}</dt><dd>{pi?.address_line1 || t('common.notAvailable')}</dd></div>
+              <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.addressLine2')}</dt><dd>{pi?.address_line2 || t('common.notAvailable')}</dd></div>
+              <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.city')}</dt><dd>{pi?.city || t('common.notAvailable')}</dd></div>
+              <div className="flex"><dt className="w-40 text-gray-500">{t('profile.labels.country')}</dt><dd>{pi?.country || t('common.notAvailable')}</dd></div>
             </>
           )}
         </dl>
@@ -238,39 +240,39 @@ export default function MyProfile() {
       {/* Emergency Contacts */}
       <div className="mt-6 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-gray-700">Emergency Contacts</h2>
+          <h2 className="font-semibold text-gray-700">{t('profile.emergencyContacts')}</h2>
           {!showContactForm && (
             <button onClick={() => { setContactForm(emptyContact); setEditingContactId(null); setShowContactForm(true); }}
-              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Add Contact</button>
+              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">{t('profile.addContact')}</button>
           )}
         </div>
         {showContactForm && (
           <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <input placeholder="Name" value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
+              <input placeholder={t('common.name')} value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Relationship" value={contactForm.relationship} onChange={e => setContactForm({ ...contactForm, relationship: e.target.value })}
+              <input placeholder={t('common.relationship')} value={contactForm.relationship} onChange={e => setContactForm({ ...contactForm, relationship: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Phone" value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })}
+              <input placeholder={t('common.phone')} value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Email (optional)" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
+              <input placeholder={t('profile.optionalEmail')} value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
             </div>
             <div className="flex gap-2">
               <button onClick={saveContact} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">
-                {editingContactId ? 'Update' : 'Save'}
+                {editingContactId ? t('common.update') : t('common.save')}
               </button>
               <button onClick={() => { setShowContactForm(false); setEditingContactId(null); }}
-                className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+                className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">{t('common.cancel')}</button>
             </div>
           </div>
         )}
         {contacts.length === 0 ? (
-          <p className="text-sm text-gray-400">No emergency contacts added.</p>
+          <p className="text-sm text-gray-400">{t('profile.noEmergencyContacts')}</p>
         ) : (
           <table className="w-full text-sm">
             <thead><tr className="text-left text-gray-500 border-b">
-              <th className="pb-2">Name</th><th className="pb-2">Relationship</th><th className="pb-2">Phone</th><th className="pb-2">Email</th><th className="pb-2"></th>
+              <th className="pb-2">{t('common.name')}</th><th className="pb-2">{t('common.relationship')}</th><th className="pb-2">{t('common.phone')}</th><th className="pb-2">{t('common.email')}</th><th className="pb-2"></th>
             </tr></thead>
             <tbody>
               {contacts.map(c => (
@@ -278,10 +280,10 @@ export default function MyProfile() {
                   <td className="py-2">{c.name}</td>
                   <td className="py-2">{c.relationship}</td>
                   <td className="py-2">{c.phone}</td>
-                  <td className="py-2">{c.email || '—'}</td>
+                  <td className="py-2">{c.email || t('common.notAvailable')}</td>
                   <td className="py-2 text-right space-x-2">
-                    <button onClick={() => editContact(c)} className="text-primary-600 hover:underline text-xs">Edit</button>
-                    <button onClick={() => deleteContact(c.id)} className="text-red-600 hover:underline text-xs">Delete</button>
+                    <button onClick={() => editContact(c)} className="text-primary-600 hover:underline text-xs">{t('common.edit')}</button>
+                    <button onClick={() => deleteContact(c.id)} className="text-red-600 hover:underline text-xs">{t('common.delete')}</button>
                   </td>
                 </tr>
               ))}
@@ -293,49 +295,50 @@ export default function MyProfile() {
       {/* Dependents */}
       <div className="mt-6 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-gray-700">Dependents</h2>          {!showDepForm && (
+          <h2 className="font-semibold text-gray-700">{t('profile.dependents')}</h2>
+          {!showDepForm && (
             <button onClick={() => { setDepForm(emptyDependent); setEditingDepId(null); setShowDepForm(true); }}
-              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Add Dependent</button>
+              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">{t('profile.addDependent')}</button>
           )}
         </div>
         {showDepForm && (
           <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <input placeholder="Name" value={depForm.name} onChange={e => setDepForm({ ...depForm, name: e.target.value })}
+              <input placeholder={t('common.name')} value={depForm.name} onChange={e => setDepForm({ ...depForm, name: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Relationship" value={depForm.relationship} onChange={e => setDepForm({ ...depForm, relationship: e.target.value })}
+              <input placeholder={t('common.relationship')} value={depForm.relationship} onChange={e => setDepForm({ ...depForm, relationship: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input type="date" placeholder="Date of Birth" value={depForm.date_of_birth} onChange={e => setDepForm({ ...depForm, date_of_birth: e.target.value })}
+              <input type="date" placeholder={t('common.dateOfBirth')} value={depForm.date_of_birth} onChange={e => setDepForm({ ...depForm, date_of_birth: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Gender (optional)" value={depForm.gender} onChange={e => setDepForm({ ...depForm, gender: e.target.value })}
+              <input placeholder={t('profile.optionalGender')} value={depForm.gender} onChange={e => setDepForm({ ...depForm, gender: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
             </div>
             <div className="flex gap-2">
               <button onClick={saveDep} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">
-                {editingDepId ? 'Update' : 'Save'}
+                {editingDepId ? t('common.update') : t('common.save')}
               </button>
               <button onClick={() => { setShowDepForm(false); setEditingDepId(null); }}
-                className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+                className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">{t('common.cancel')}</button>
             </div>
           </div>
         )}
         {dependents.length === 0 ? (
-          <p className="text-sm text-gray-400">No dependents added.</p>
+          <p className="text-sm text-gray-400">{t('profile.noDependents')}</p>
         ) : (
           <table className="w-full text-sm">
             <thead><tr className="text-left text-gray-500 border-b">
-              <th className="pb-2">Name</th><th className="pb-2">Relationship</th><th className="pb-2">Date of Birth</th><th className="pb-2">Gender</th><th className="pb-2"></th>
+              <th className="pb-2">{t('common.name')}</th><th className="pb-2">{t('common.relationship')}</th><th className="pb-2">{t('common.dateOfBirth')}</th><th className="pb-2">{t('common.gender')}</th><th className="pb-2"></th>
             </tr></thead>
             <tbody>
               {dependents.map(d => (
                 <tr key={d.id} className="border-b last:border-0">
                   <td className="py-2">{d.name}</td>
                   <td className="py-2">{d.relationship}</td>
-                  <td className="py-2">{d.date_of_birth || '—'}</td>
-                  <td className="py-2">{d.gender || '—'}</td>
+                  <td className="py-2">{d.date_of_birth || t('common.notAvailable')}</td>
+                  <td className="py-2">{d.gender || t('common.notAvailable')}</td>
                   <td className="py-2 text-right space-x-2">
-                    <button onClick={() => editDep(d)} className="text-primary-600 hover:underline text-xs">Edit</button>
-                    <button onClick={() => deleteDep(d.id)} className="text-red-600 hover:underline text-xs">Delete</button>
+                    <button onClick={() => editDep(d)} className="text-primary-600 hover:underline text-xs">{t('common.edit')}</button>
+                    <button onClick={() => deleteDep(d.id)} className="text-red-600 hover:underline text-xs">{t('common.delete')}</button>
                   </td>
                 </tr>
               ))}
@@ -346,29 +349,29 @@ export default function MyProfile() {
 
       {/* My Compensation */}
       <div className="mt-6 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h2 className="font-semibold text-gray-700 mb-4">My Compensation</h2>
+        <h2 className="font-semibold text-gray-700 mb-4">{t('profile.compensation')}</h2>
         {compensation.length === 0 ? (
-          <p className="text-sm text-gray-400">No compensation packages found.</p>
+          <p className="text-sm text-gray-400">{t('profile.noCompensation')}</p>
         ) : (
           <div className="space-y-4">
             {compensation.map((pkg) => (
               <div key={pkg.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-medium text-gray-800">{pkg.name}</h3>
-                  <span className="text-xs text-gray-400">Effective: {pkg.effective_date}</span>
+                  <span className="text-xs text-gray-400">{t('profile.effective', { date: pkg.effective_date })}</span>
                 </div>
                 {pkg.recurring_payments.length > 0 && (
                   <div className="mb-3">
-                    <h4 className="text-xs font-medium text-gray-500 uppercase mb-1">Recurring Payments</h4>
+                    <h4 className="text-xs font-medium text-gray-500 uppercase mb-1">{t('profile.recurringPayments')}</h4>
                     <table className="w-full text-sm">
                       <thead><tr className="text-left text-gray-500 border-b">
-                        <th className="pb-1">Type</th><th className="pb-1">Amount</th><th className="pb-1">Currency</th><th className="pb-1">Frequency</th>
+                        <th className="pb-1">{t('common.type')}</th><th className="pb-1">{t('common.amount')}</th><th className="pb-1">{t('common.currency')}</th><th className="pb-1">{t('common.frequency')}</th>
                       </tr></thead>
                       <tbody>
                         {pkg.recurring_payments.map((rp) => (
                           <tr key={rp.id} className="border-b last:border-0">
                             <td className="py-1">{rp.type}</td>
-                            <td className="py-1">{rp.amount.toLocaleString()}</td>
+                            <td className="py-1">{rp.amount.toLocaleString(i18n.language)}</td>
                             <td className="py-1">{rp.currency}</td>
                             <td className="py-1">{rp.frequency}</td>
                           </tr>
@@ -379,16 +382,16 @@ export default function MyProfile() {
                 )}
                 {pkg.one_time_payments.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-500 uppercase mb-1">One-Time Payments</h4>
+                    <h4 className="text-xs font-medium text-gray-500 uppercase mb-1">{t('profile.oneTimePayments')}</h4>
                     <table className="w-full text-sm">
                       <thead><tr className="text-left text-gray-500 border-b">
-                        <th className="pb-1">Type</th><th className="pb-1">Amount</th><th className="pb-1">Currency</th><th className="pb-1">Date</th>
+                        <th className="pb-1">{t('common.type')}</th><th className="pb-1">{t('common.amount')}</th><th className="pb-1">{t('common.currency')}</th><th className="pb-1">{t('common.date')}</th>
                       </tr></thead>
                       <tbody>
                         {pkg.one_time_payments.map((otp) => (
                           <tr key={otp.id} className="border-b last:border-0">
                             <td className="py-1">{otp.type}</td>
-                            <td className="py-1">{otp.amount.toLocaleString()}</td>
+                            <td className="py-1">{otp.amount.toLocaleString(i18n.language)}</td>
                             <td className="py-1">{otp.currency}</td>
                             <td className="py-1">{otp.payment_date}</td>
                           </tr>

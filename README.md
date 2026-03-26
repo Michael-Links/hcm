@@ -24,6 +24,14 @@ Open **http://localhost** and log in:
 - **Self-Service (ESS)**: Employees view/edit their profile
 - **Manager Self-Service (MSS)**: Managers view their team
 - **Role-based Access**: HR, Manager, Employee roles with enforced permissions
+- **Localization**: English and Traditional Chinese for Hong Kong (`zh-HK`) with a user-selectable language switcher
+
+## Language support
+
+- Supported locales: `en`, `zh-HK`
+- Users can switch languages from the login page and the authenticated app header
+- The selected language is saved to the user account and cached in the browser for faster startup
+- Traditional Chinese copy is written for Hong Kong workplace and HR usage
 
 ## Tech Stack
 

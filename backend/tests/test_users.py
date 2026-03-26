@@ -25,6 +25,7 @@ def test_create_user(client, hr_user, hr_token):
         headers={"Authorization": f"Bearer {hr_token}"})
     assert resp.status_code == 201
     assert resp.json()["email"] == "new@test.com"
+    assert resp.json()["language_preference"] == "en"
 
 def test_create_duplicate_user(client, hr_user, hr_token):
     client.post("/api/users", json={"email": "dup@test.com", "password": "test123", "role": "EMPLOYEE"},

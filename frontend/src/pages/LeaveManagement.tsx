@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -33,6 +34,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function LeaveManagement() {
+  const { t } = useTranslation();
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [filter, setFilter] = useState('');
@@ -69,12 +71,12 @@ export default function LeaveManagement() {
         requires_approval: form.requires_approval,
         max_consecutive_days: form.max_consecutive_days ? Number(form.max_consecutive_days) : null,
       });
-      setMsg('Leave type created!');
+      setMsg(t('leaveAdmin.created'));
       setMsgType('success');
       setForm({ name: '', code: '', default_balance: '0', is_paid: true, requires_approval: true, max_consecutive_days: '' });
       setShowForm(false);
       load();
-    } catch { showMsg('Failed to create leave type', 'error'); }
+    } catch { showMsg(t('leaveAdmin.createFailed'), 'error'); }
   };
 
   const showMsg = (text: string, type: 'success' | 'error' = 'success') => {
@@ -106,10 +108,10 @@ export default function LeaveManagement() {
         requires_approval: editForm.requires_approval,
         max_consecutive_days: editForm.max_consecutive_days ? Number(editForm.max_consecutive_days) : null,
       });
-      showMsg('Leave type updated!');
+      showMsg(t('leaveAdmin.updated'));
       setEditingId(null);
       load();
-    } catch { showMsg('Failed to update leave type', 'error'); }
+    } catch { showMsg(t('leaveAdmin.updateFailed'), 'error'); }
   };
 
   const confirmDelete = (id: number) => setDeleteConfirm({ open: true, id });
@@ -120,63 +122,63 @@ export default function LeaveManagement() {
     setDeleteConfirm({ open: false, id: null });
     try {
       await api.delete(`/api/leave-types/${deleteConfirm.id}`);
-      showMsg('Leave type deleted!');
+      showMsg(t('leaveAdmin.deleted'));
       load();
     } catch (err: unknown) {
       const message = (err && typeof err === 'object' && 'response' in err)
         ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
         : undefined;
-      showMsg(message || 'Cannot delete — leave type may be in use', 'error');
+      showMsg(message || t('leaveAdmin.deleteFailed'), 'error');
     }
   };
 
-  if (loading) return <div className="text-gray-500">Loading...</div>;
+  if (loading) return <div className="text-gray-500">{t('common.loading')}</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">🏖️ Leave Administration</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">🏖️ {t('leaveAdmin.title')}</h1>
       {msg && <div className={`px-4 py-2 rounded-lg text-sm mb-4 ${msgType === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>{msg}</div>}
 
       {/* Leave Types */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-gray-700">Leave Types</h2>
+          <h2 className="font-semibold text-gray-700">{t('leaveAdmin.leaveTypes')}</h2>
           {!showForm && (
             <button onClick={() => setShowForm(true)}
-              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Add Type</button>
+              className="text-sm px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">{t('leaveAdmin.addType')}</button>
           )}
         </div>
         {showForm && (
           <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+              <input placeholder={t('common.name')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input placeholder="Code" value={form.code} onChange={e => setForm({ ...form, code: e.target.value })}
+              <input placeholder={t('common.code')} value={form.code} onChange={e => setForm({ ...form, code: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input type="number" placeholder="Default Balance" value={form.default_balance}
+              <input type="number" placeholder={t('leaveAdmin.defaultBalance')} value={form.default_balance}
                 onChange={e => setForm({ ...form, default_balance: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-              <input type="number" placeholder="Max Consecutive Days (optional)" value={form.max_consecutive_days}
+              <input type="number" placeholder={t('leaveAdmin.maxConsecutiveDays')} value={form.max_consecutive_days}
                 onChange={e => setForm({ ...form, max_consecutive_days: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.is_paid} onChange={e => setForm({ ...form, is_paid: e.target.checked })} /> Paid
+                <input type="checkbox" checked={form.is_paid} onChange={e => setForm({ ...form, is_paid: e.target.checked })} /> {t('leaveAdmin.paid')}
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.requires_approval} onChange={e => setForm({ ...form, requires_approval: e.target.checked })} /> Requires Approval
+                <input type="checkbox" checked={form.requires_approval} onChange={e => setForm({ ...form, requires_approval: e.target.checked })} /> {t('leaveAdmin.requiresApproval')}
               </label>
             </div>
             <div className="flex gap-2">
-              <button onClick={createType} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">Save</button>
-              <button onClick={() => setShowForm(false)} className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+              <button onClick={createType} className="px-4 py-1.5 bg-primary-600 text-white rounded-lg text-sm">{t('common.save')}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm">{t('common.cancel')}</button>
             </div>
           </div>
         )}
         <table className="w-full text-sm">
           <thead><tr className="text-left text-gray-500 border-b">
-            <th className="pb-2">Name</th><th className="pb-2">Code</th><th className="pb-2">Default Balance</th>
-            <th className="pb-2">Paid</th><th className="pb-2">Approval</th><th className="pb-2">Max Days</th>
-            <th className="pb-2">Actions</th>
+            <th className="pb-2">{t('common.name')}</th><th className="pb-2">{t('common.code')}</th><th className="pb-2">{t('leaveAdmin.defaultBalance')}</th>
+            <th className="pb-2">{t('leaveAdmin.paid')}</th><th className="pb-2">{t('leaveAdmin.approval')}</th><th className="pb-2">{t('leaveAdmin.maxDays')}</th>
+            <th className="pb-2">{t('common.actions')}</th>
           </tr></thead>
           <tbody>
             {leaveTypes.map(lt => editingId === lt.id ? (
@@ -205,8 +207,8 @@ export default function LeaveManagement() {
                 </td>
                 <td className="py-2">
                   <div className="flex gap-1">
-                    <button onClick={updateType} className="px-2 py-1 bg-primary-600 text-white rounded text-xs hover:bg-primary-700">Save</button>
-                    <button onClick={() => setEditingId(null)} className="px-2 py-1 border border-gray-300 rounded text-xs hover:bg-gray-50">Cancel</button>
+                    <button onClick={updateType} className="px-2 py-1 bg-primary-600 text-white rounded text-xs hover:bg-primary-700">{t('common.save')}</button>
+                    <button onClick={() => setEditingId(null)} className="px-2 py-1 border border-gray-300 rounded text-xs hover:bg-gray-50">{t('common.cancel')}</button>
                   </div>
                 </td>
               </tr>
@@ -220,8 +222,8 @@ export default function LeaveManagement() {
                 <td className="py-2">{lt.max_consecutive_days ?? '—'}</td>
                 <td className="py-2">
                   <div className="flex gap-1">
-                    <button onClick={() => startEdit(lt)} className="px-2 py-1 text-xs text-primary-600 border border-primary-300 rounded hover:bg-primary-50">Edit</button>
-                    <button onClick={() => confirmDelete(lt.id)} className="px-2 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50">Delete</button>
+                    <button onClick={() => startEdit(lt)} className="px-2 py-1 text-xs text-primary-600 border border-primary-300 rounded hover:bg-primary-50">{t('common.edit')}</button>
+                    <button onClick={() => confirmDelete(lt.id)} className="px-2 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50">{t('common.delete')}</button>
                   </div>
                 </td>
               </tr>
@@ -233,25 +235,25 @@ export default function LeaveManagement() {
       {/* All Requests */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="font-semibold text-gray-700">All Leave Requests</h2>
+          <h2 className="font-semibold text-gray-700">{t('leaveAdmin.allRequests')}</h2>
           <select value={filter} onChange={e => setFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-            <option value="">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="">{t('common.allStatuses')}</option>
+            <option value="PENDING">{t('common.statusLabel.PENDING')}</option>
+            <option value="APPROVED">{t('common.statusLabel.APPROVED')}</option>
+            <option value="REJECTED">{t('common.statusLabel.REJECTED')}</option>
+            <option value="CANCELLED">{t('common.statusLabel.CANCELLED')}</option>
           </select>
         </div>
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Employee</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Type</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Start</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">End</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Days</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Status</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.employee')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.type')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.start')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.end')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.days')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -263,12 +265,14 @@ export default function LeaveManagement() {
                 <td className="px-6 py-3">{r.end_date}</td>
                 <td className="px-6 py-3">{r.days}</td>
                 <td className="px-6 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[r.status] || ''}`}>{r.status}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[r.status] || ''}`}>
+                    {t(`common.statusLabel.${r.status}`, { defaultValue: r.status })}
+                  </span>
                 </td>
               </tr>
             ))}
             {requests.length === 0 && (
-              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">No leave requests</td></tr>
+              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">{t('leaveAdmin.noRequests')}</td></tr>
             )}
           </tbody>
         </table>
@@ -276,8 +280,8 @@ export default function LeaveManagement() {
 
       <ConfirmModal
         open={deleteConfirm.open}
-        title="Delete Leave Type"
-        message="Are you sure you want to delete this leave type? This cannot be undone."
+        title={t('leaveAdmin.deleteTypeTitle')}
+        message={t('leaveAdmin.deleteTypeMessage')}
         onConfirm={deleteType}
         onCancel={() => setDeleteConfirm({ open: false, id: null })}
       />

@@ -14,7 +14,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     token = create_access_token(user)
-    return TokenResponse(access_token=token, role=user.role)
+    return TokenResponse(access_token=token, role=user.role, language_preference=user.language_preference)
 
 @router.post("/change-password", status_code=200)
 def change_password(data: ChangePasswordRequest, db: Session = Depends(get_db), current_user=Depends(get_current_user)):

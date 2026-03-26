@@ -59,3 +59,24 @@ def test_my_compensation(client, db_session, manager_with_report):
     assert len(data) == 1
     assert data[0]["name"] == "Salary 2024"
     assert len(data[0]["recurring_payments"]) == 1
+
+
+def test_get_my_preferences(client, manager_with_report):
+    token = create_access_token(manager_with_report["emp_user"])
+    resp = client.get("/api/me/preferences", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["language_preference"] == "en"
+
+
+def test_update_my_preferences(client, db_session, manager_with_report):
+    token = create_access_token(manager_with_report["emp_user"])
+    resp = client.patch(
+        "/api/me/preferences",
+        json={"language_preference": "zh-HK"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["language_preference"] == "zh-HK"
+
+    db_session.refresh(manager_with_report["emp_user"])
+    assert manager_with_report["emp_user"].language_preference == "zh-HK"

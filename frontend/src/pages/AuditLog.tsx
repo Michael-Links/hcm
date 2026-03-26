@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface AuditLogEntry {
@@ -24,6 +25,7 @@ const ENTITY_TYPES = ['', 'Employee', 'OrgGroup', 'Entity', 'Division', 'Departm
 const ACTIONS = ['', 'CREATE', 'UPDATE', 'DELETE'];
 
 export default function AuditLog() {
+  const { t, i18n } = useTranslation();
   const [data, setData] = useState<AuditResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -45,7 +47,7 @@ export default function AuditLog() {
       const res = await api.get(`/api/audit?${params.toString()}`);
       setData(res.data);
     } catch {
-      setError('Failed to load audit logs');
+      setError(t('audit.failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -75,53 +77,53 @@ export default function AuditLog() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">📋 Audit Log</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">📋 {t('audit.title')}</h1>
 
       {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow p-4 mb-4 flex flex-wrap gap-4 items-end">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Entity Type</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('audit.entityType')}</label>
           <select value={entityType} onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
             className="border rounded-lg px-3 py-2 text-sm">
-            <option value="">All</option>
+            <option value="">{t('audit.all')}</option>
             {ENTITY_TYPES.filter(Boolean).map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Action</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('audit.action')}</label>
           <select value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }}
             className="border rounded-lg px-3 py-2 text-sm">
-            <option value="">All</option>
+            <option value="">{t('audit.all')}</option>
             {ACTIONS.filter(Boolean).map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">User Email</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('audit.userEmail')}</label>
           <input type="text" value={userEmail} onChange={(e) => { setUserEmail(e.target.value); setPage(1); }}
-            placeholder="Search email..." className="border rounded-lg px-3 py-2 text-sm" />
+            placeholder={t('audit.searchEmail')} className="border rounded-lg px-3 py-2 text-sm" />
         </div>
         <button onClick={handleFilterReset}
           className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border rounded-lg">
-          Reset
+          {t('audit.reset')}
         </button>
       </div>
 
       {loading ? (
-        <div className="p-6 text-center text-gray-500">Loading...</div>
+        <div className="p-6 text-center text-gray-500">{t('common.loading')}</div>
       ) : (
         <>
           <div className="bg-white rounded-xl shadow overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Timestamp</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">User</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Action</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Entity Type</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Entity ID</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Description</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.timestamp')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.user')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('audit.action')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('audit.entityType')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.employeeId')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.description')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -129,18 +131,18 @@ export default function AuditLog() {
                   data.items.map((log) => (
                     <tr key={log.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.timestamp).toLocaleString(i18n.language)}
                       </td>
-                      <td className="px-4 py-3">{log.user_email ?? '—'}</td>
+                      <td className="px-4 py-3">{log.user_email ?? t('common.notAvailable')}</td>
                       <td className="px-4 py-3">{actionBadge(log.action)}</td>
                       <td className="px-4 py-3">{log.entity_type}</td>
-                      <td className="px-4 py-3 text-gray-500">{log.entity_id ?? '—'}</td>
-                      <td className="px-4 py-3 text-gray-500">{log.description ?? '—'}</td>
+                      <td className="px-4 py-3 text-gray-500">{log.entity_id ?? t('common.notAvailable')}</td>
+                      <td className="px-4 py-3 text-gray-500">{log.description ?? t('common.notAvailable')}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">No audit logs found</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('audit.noLogs')}</td>
                   </tr>
                 )}
               </tbody>
@@ -148,22 +150,22 @@ export default function AuditLog() {
           </div>
 
           {/* Pagination */}
-          {data && data.pages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <span className="text-sm text-gray-500">
-                Page {data.page} of {data.pages} ({data.total} total)
-              </span>
-              <div className="flex gap-2">
-                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                  className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 hover:bg-gray-50">
-                  Previous
-                </button>
-                <button onClick={() => setPage((p) => Math.min(data.pages, p + 1))} disabled={page >= data.pages}
-                  className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 hover:bg-gray-50">
-                  Next
-                </button>
+            {data && data.pages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-sm text-gray-500">
+                  {t('audit.pageSummary', { page: data.page, pages: data.pages, total: data.total })}
+                </span>
+                <div className="flex gap-2">
+                  <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
+                    className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 hover:bg-gray-50">
+                    {t('common.previous')}
+                  </button>
+                  <button onClick={() => setPage((p) => Math.min(data.pages, p + 1))} disabled={page >= data.pages}
+                    className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 hover:bg-gray-50">
+                    {t('common.next')}
+                  </button>
+                </div>
               </div>
-            </div>
           )}
         </>
       )}

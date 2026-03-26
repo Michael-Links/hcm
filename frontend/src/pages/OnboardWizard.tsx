@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
@@ -7,6 +8,7 @@ interface Position { id: number; title: string; code: string; department_id: num
 const steps = ['Select Position', 'Personal Info', 'Compensation'];
 
 export default function OnboardWizard() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [positions, setPositions] = useState<Position[]>([]);
   const [form, setForm] = useState({
@@ -28,13 +30,13 @@ export default function OnboardWizard() {
   const next = () => {
     const errs: Record<string, string> = {};
     if (step === 0) {
-      if (!form.position_id) errs.position_id = 'Please select a position';
+      if (!form.position_id) errs.position_id = t('onboard.pleaseSelectPosition');
     }
     if (step === 1) {
-      if (!form.first_name.trim()) errs.first_name = 'First name is required';
-      if (!form.last_name.trim()) errs.last_name = 'Last name is required';
+      if (!form.first_name.trim()) errs.first_name = t('onboard.firstNameRequired');
+      if (!form.last_name.trim()) errs.last_name = t('onboard.lastNameRequired');
       if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-        errs.email = 'Invalid email format';
+        errs.email = t('onboard.invalidEmail');
       }
     }
     setStepErrors(errs);
@@ -64,7 +66,7 @@ export default function OnboardWizard() {
       };
       if (form.salary_amount) {
         body.compensation = {
-          package_name: 'Initial Package',
+          package_name: t('onboard.initialPackage'),
           salary_amount: parseFloat(form.salary_amount),
           salary_currency: form.salary_currency,
         };
@@ -72,7 +74,7 @@ export default function OnboardWizard() {
       await api.post('/api/employees/onboard', body);
       navigate('/employees');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Onboarding failed');
+      setError(err.response?.data?.detail || t('onboard.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -82,7 +84,7 @@ export default function OnboardWizard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Onboard Employee</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('onboard.title')}</h1>
 
       {/* Stepper */}
       <div className="flex items-center mb-8">
@@ -91,10 +93,12 @@ export default function OnboardWizard() {
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
               i <= step ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'
             }`}>{i + 1}</div>
-            <span className={`ml-2 text-sm ${i <= step ? 'text-primary-700 font-medium' : 'text-gray-400'}`}>{label}</span>
-            {i < 2 && <div className={`w-12 h-0.5 mx-3 ${i < step ? 'bg-primary-600' : 'bg-gray-200'}`} />}
-          </div>
-        ))}
+              <span className={`ml-2 text-sm ${i <= step ? 'text-primary-700 font-medium' : 'text-gray-400'}`}>
+                {label === 'Select Position' ? t('onboard.selectPosition') : label === 'Personal Info' ? t('onboard.personalInfo') : t('onboard.compensation')}
+              </span>
+              {i < 2 && <div className={`w-12 h-0.5 mx-3 ${i < step ? 'bg-primary-600' : 'bg-gray-200'}`} />}
+            </div>
+          ))}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -103,16 +107,16 @@ export default function OnboardWizard() {
         {step === 0 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Position *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.position')} *</label>
               <select value={form.position_id} onChange={(e) => set('position_id', Number(e.target.value))}
                 className={`w-full px-3 py-2 border rounded-lg ${stepErrors.position_id ? 'border-red-500' : 'border-gray-300'}`}>
-                <option value={0}>Select a position...</option>
+                <option value={0}>{t('onboard.selectPositionPlaceholder')}</option>
                 {positions.map((p) => <option key={p.id} value={p.id}>{p.title} ({p.code})</option>)}
               </select>
               {stepErrors.position_id && <p className="text-xs text-red-500 mt-1">{stepErrors.position_id}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('onboard.hireDate')}</label>
               <input type="date" value={form.hire_date} onChange={(e) => set('hire_date', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
             </div>
@@ -120,20 +124,20 @@ export default function OnboardWizard() {
         )}
 
         {step === 1 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { field: 'first_name', label: 'First Name', required: true },
-              { field: 'last_name', label: 'Last Name', required: true },
-              { field: 'email', label: 'Email' },
-              { field: 'phone', label: 'Phone' },
-              { field: 'gender', label: 'Gender' },
-              { field: 'date_of_birth', label: 'Date of Birth', type: 'date' },
-              { field: 'address_line1', label: 'Address' },
-              { field: 'city', label: 'City' },
-              { field: 'country', label: 'Country' },
-            ].map(({ field, label, type, required }) => (
-              <div key={field}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{label}{required && ' *'}</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { field: 'first_name', label: t('onboard.firstName'), required: true },
+                { field: 'last_name', label: t('onboard.lastName'), required: true },
+                { field: 'email', label: t('common.email') },
+                { field: 'phone', label: t('common.phone') },
+                { field: 'gender', label: t('common.gender') },
+                { field: 'date_of_birth', label: t('common.dateOfBirth'), type: 'date' },
+                { field: 'address_line1', label: t('onboard.address') },
+                { field: 'city', label: t('common.city') },
+                { field: 'country', label: t('common.country') },
+              ].map(({ field, label, type, required }) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{label}{required && ' *'}</label>
                 <input type={type || 'text'} value={(form as any)[field]} onChange={(e) => set(field, e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg ${stepErrors[field] ? 'border-red-500' : 'border-gray-300'}`} required={required} />
                 {stepErrors[field] && <p className="text-xs text-red-500 mt-1">{stepErrors[field]}</p>}
@@ -144,15 +148,15 @@ export default function OnboardWizard() {
 
         {step === 2 && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500 mb-2">Optional: Set up initial compensation package</p>
+            <p className="text-sm text-gray-500 mb-2">{t('onboard.optionalCompensation')}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Salary</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('onboard.monthlySalary')}</label>
                 <input type="number" value={form.salary_amount} onChange={(e) => set('salary_amount', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="e.g. 5000" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.currency')}</label>
                 <select value={form.salary_currency} onChange={(e) => set('salary_currency', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg">
                   <option value="USD">USD</option>
@@ -168,16 +172,16 @@ export default function OnboardWizard() {
         <div className="flex justify-between mt-8">
           <button onClick={prev} disabled={step === 0}
             className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-30 transition">
-            Back
+            {t('common.back')}
           </button>
           {step < 2 ? (
             <button onClick={next} className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
-              Next
+              {t('common.next')}
             </button>
           ) : (
             <button onClick={submit} disabled={submitting}
               className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition">
-              {submitting ? 'Submitting...' : 'Complete Onboarding'}
+              {submitting ? t('onboard.submitting') : t('onboard.complete')}
             </button>
           )}
         </div>

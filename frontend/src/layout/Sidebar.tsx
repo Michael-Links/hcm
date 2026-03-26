@@ -1,23 +1,25 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import BrandLockup from '../components/BrandLockup';
 
 const navItems = [
-  { to: '/', label: '📊 Dashboard', roles: ['HR'] },
-  { to: '/org', label: '🏢 Organization', roles: ['HR'] },
-  { to: '/onboard', label: '➕ Onboard', roles: ['HR'] },
-  { to: '/employees', label: '👥 Employees', roles: ['HR'] },
-  { to: '/users', label: '👤 Users', roles: ['HR'] },
-  { to: '/audit', label: '📋 Audit Log', roles: ['HR'] },
-  { to: '/directory', label: '📒 Directory', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
-  { to: '/profile', label: '👤 My Profile', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
-  { to: '/leave', label: '🏖️ My Leave', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
-  { to: '/team', label: '👥 My Team', roles: ['MANAGER'] },
-  { to: '/team/leave', label: '📅 Team Leave', roles: ['MANAGER'] },
-  { to: '/leave-admin', label: '🏖️ Leave Admin', roles: ['HR'] },
+  { to: '/', icon: '📊', labelKey: 'navigation.dashboard', roles: ['HR'] },
+  { to: '/org', icon: '🏢', labelKey: 'navigation.organization', roles: ['HR'] },
+  { to: '/onboard', icon: '➕', labelKey: 'navigation.onboard', roles: ['HR'] },
+  { to: '/employees', icon: '👥', labelKey: 'navigation.employees', roles: ['HR'] },
+  { to: '/users', icon: '👤', labelKey: 'navigation.users', roles: ['HR'] },
+  { to: '/audit', icon: '📋', labelKey: 'navigation.audit', roles: ['HR'] },
+  { to: '/directory', icon: '📒', labelKey: 'navigation.directory', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
+  { to: '/profile', icon: '👤', labelKey: 'navigation.profile', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
+  { to: '/leave', icon: '🏖️', labelKey: 'navigation.leave', roles: ['HR', 'MANAGER', 'EMPLOYEE'] },
+  { to: '/team', icon: '👥', labelKey: 'navigation.team', roles: ['MANAGER'] },
+  { to: '/team/leave', icon: '📅', labelKey: 'navigation.teamLeave', roles: ['MANAGER'] },
+  { to: '/leave-admin', icon: '🏖️', labelKey: 'navigation.leaveAdmin', roles: ['HR'] },
 ];
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const { role } = useAuth();
   const visible = navItems.filter((item) => role && item.roles.includes(role));
 
@@ -38,7 +40,8 @@ export default function Sidebar() {
               }`
             }
           >
-            {item.label}
+            <span className="mr-2">{item.icon}</span>
+            {t(item.labelKey)}
           </NavLink>
         ))}
       </nav>

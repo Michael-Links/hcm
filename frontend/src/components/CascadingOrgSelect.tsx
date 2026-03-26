@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Position { id: number; title: string; code: string; is_active: boolean }
 interface Department { id: number; name: string; code: string; positions: Position[] }
@@ -21,6 +22,7 @@ interface CascadingOrgSelectProps {
 const selectClass = 'px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white min-w-[160px]';
 
 export default function CascadingOrgSelect({ tree, type, onParentChange }: CascadingOrgSelectProps) {
+  const { t } = useTranslation();
   const [selectedGroup, setSelectedGroup] = useState<number>(0);
   const [selectedEntity, setSelectedEntity] = useState<number>(0);
   const [selectedDivision, setSelectedDivision] = useState<number>(0);
@@ -80,7 +82,7 @@ export default function CascadingOrgSelect({ tree, type, onParentChange }: Casca
           }}
           className={selectClass}
         >
-          <option value={0}>— Select Group —</option>
+          <option value={0}>{t('org.selectGroup')}</option>
           {tree.groups.map(g => (
             <option key={g.id} value={g.id}>{g.name} ({g.code})</option>
           ))}
@@ -99,7 +101,7 @@ export default function CascadingOrgSelect({ tree, type, onParentChange }: Casca
           className={selectClass}
           disabled={!selectedGroup}
         >
-          <option value={0}>— Select Entity —</option>
+          <option value={0}>{t('org.selectEntity')}</option>
           {entityOptions.map(e => (
             <option key={e.id} value={e.id}>{e.name} ({e.code})</option>
           ))}
@@ -117,7 +119,7 @@ export default function CascadingOrgSelect({ tree, type, onParentChange }: Casca
           className={selectClass}
           disabled={!selectedEntity}
         >
-          <option value={0}>— Select Division —</option>
+          <option value={0}>{t('org.selectDivision')}</option>
           {divisionOptions.map(d => (
             <option key={d.id} value={d.id}>{d.name} ({d.code})</option>
           ))}
@@ -131,7 +133,7 @@ export default function CascadingOrgSelect({ tree, type, onParentChange }: Casca
           className={selectClass}
           disabled={!selectedDivision}
         >
-          <option value={0}>— Select Department —</option>
+          <option value={0}>{t('org.selectDepartment')}</option>
           {departmentOptions.map(dept => (
             <option key={dept.id} value={dept.id}>{dept.name} ({dept.code})</option>
           ))}

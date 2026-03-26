@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 interface LeaveRequest {
@@ -22,6 +23,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function TeamLeave() {
+  const { t } = useTranslation();
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -43,19 +45,19 @@ export default function TeamLeave() {
     } catch { /* ignore */ }
   };
 
-  if (loading) return <div className="text-gray-500">Loading...</div>;
+  if (loading) return <div className="text-gray-500">{t('common.loading')}</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">📅 Team Leave Requests</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">📅 {t('teamLeave.title')}</h1>
 
       <div className="mb-4">
         <select value={filter} onChange={e => setFilter(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-          <option value="">All Statuses</option>
-          <option value="PENDING">Pending</option>
-          <option value="APPROVED">Approved</option>
-          <option value="REJECTED">Rejected</option>
+          <option value="">{t('common.allStatuses')}</option>
+          <option value="PENDING">{t('common.statusLabel.PENDING')}</option>
+          <option value="APPROVED">{t('common.statusLabel.APPROVED')}</option>
+          <option value="REJECTED">{t('common.statusLabel.REJECTED')}</option>
         </select>
       </div>
 
@@ -63,13 +65,13 @@ export default function TeamLeave() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Employee</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Type</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Start</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">End</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Days</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Reason</th>
-              <th className="text-left px-6 py-3 font-medium text-gray-500">Status</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.employee')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.type')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.start')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.end')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.days')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.reason')}</th>
+              <th className="text-left px-6 py-3 font-medium text-gray-500">{t('common.status')}</th>
               <th className="text-left px-6 py-3 font-medium text-gray-500"></th>
             </tr>
           </thead>
@@ -81,24 +83,26 @@ export default function TeamLeave() {
                 <td className="px-6 py-3">{r.start_date}</td>
                 <td className="px-6 py-3">{r.end_date}</td>
                 <td className="px-6 py-3">{r.days}</td>
-                <td className="px-6 py-3">{r.reason || '—'}</td>
+                <td className="px-6 py-3">{r.reason || t('common.notAvailable')}</td>
                 <td className="px-6 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[r.status] || ''}`}>{r.status}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[r.status] || ''}`}>
+                    {t(`common.statusLabel.${r.status}`, { defaultValue: r.status })}
+                  </span>
                 </td>
                 <td className="px-6 py-3 space-x-2">
                   {r.status === 'PENDING' && (
                     <>
                       <button onClick={() => handleAction(r.id, 'APPROVED')}
-                        className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">Approve</button>
+                        className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">{t('teamLeave.approve')}</button>
                       <button onClick={() => handleAction(r.id, 'REJECTED')}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Reject</button>
+                        className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">{t('teamLeave.reject')}</button>
                     </>
                   )}
                 </td>
               </tr>
             ))}
             {requests.length === 0 && (
-              <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">No leave requests from your team</td></tr>
+              <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">{t('teamLeave.noRequests')}</td></tr>
             )}
           </tbody>
         </table>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BRANDING } from '../branding';
 
 type BrandLockupProps = {
@@ -6,6 +7,8 @@ type BrandLockupProps = {
 };
 
 export default function BrandLockup({ variant }: BrandLockupProps) {
+  const { t } = useTranslation();
+
   if (variant === 'login') {
     return (
       <div className="flex flex-col items-center gap-4">
@@ -23,7 +26,7 @@ export default function BrandLockup({ variant }: BrandLockupProps) {
             />
             <h1 className="text-3xl font-bold text-primary-700">{BRANDING.appName}</h1>
           </div>
-          <p className="text-sm text-gray-500">{BRANDING.appSubtitle}</p>
+          <p className="text-sm text-gray-500">{t('brand.appSubtitle')}</p>
         </div>
       </div>
     );
@@ -39,7 +42,7 @@ export default function BrandLockup({ variant }: BrandLockupProps) {
         />
         <div>
           <h1 className="text-xl font-bold text-white">{BRANDING.appName}</h1>
-          <p className="text-xs text-gray-400 mt-1">{BRANDING.companyName}</p>
+          <p className="text-xs text-gray-400 mt-1">{t('brand.companyName')}</p>
         </div>
       </Link>
     );
@@ -54,7 +57,7 @@ export default function BrandLockup({ variant }: BrandLockupProps) {
       />
       <div>
         <span className="block text-lg font-semibold text-gray-800">{BRANDING.appName}</span>
-        <span className="block text-xs text-gray-500">{BRANDING.companyName}</span>
+        <span className="block text-xs text-gray-500">{t('brand.companyName')}</span>
       </div>
     </Link>
   );

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { LANGUAGE_STORAGE_KEY } from '../i18n/config';
 
 const api = axios.create({
   baseURL: '',
@@ -7,8 +8,12 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('ecm_token');
+  const language = localStorage.getItem(LANGUAGE_STORAGE_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (language) {
+    config.headers['Accept-Language'] = language;
   }
   return config;
 });

@@ -4,6 +4,7 @@ def test_login_success(client, hr_user):
     data = resp.json()
     assert "access_token" in data
     assert data["role"] == "HR"
+    assert data["language_preference"] == "en"
 
 def test_login_wrong_password(client, hr_user):
     resp = client.post("/api/auth/login", json={"email": "hr@test.com", "password": "wrong"})

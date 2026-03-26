@@ -1,9 +1,12 @@
 import { useState, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import BrandLockup from '../components/BrandLockup';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +22,7 @@ export default function LoginPage() {
       await login(email, password);
       navigate('/');
     } catch {
-      setError('Invalid email or password');
+      setError(t('auth.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -28,6 +31,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4">
       <div className="bg-white rounded-2xl shadow-xl ring-1 ring-primary-100 p-8 w-full max-w-md">
+        <LanguageSelector variant="login" />
         <div className="text-center mb-8">
           <BrandLockup variant="login" />
         </div>
@@ -36,19 +40,19 @@ export default function LoginPage() {
             <div className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm">{error}</div>
           )}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">{t('common.email')}</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-              placeholder="you@company.com"
+              placeholder={t('auth.companyEmailPlaceholder')}
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('common.password')}</label>
             <input
               id="password"
               type="password"
@@ -64,7 +68,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('auth.signingIn') : t('auth.signIn')}
           </button>
         </form>
       </div>

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User, Role
+from app.schemas.auth import UserPreferencesOut, UserPreferencesUpdate
 from app.schemas.employee import EmployeeOut, PersonalInfoUpdate, EmployeeListOut
 from app.schemas.compensation import CompensationPackageOut
 from app.services.employee_service import get_employee, get_direct_reports
@@ -49,3 +50,20 @@ def my_compensation(db: Session = Depends(get_db), current_user: User = Depends(
         raise HTTPException(status_code=404, detail="No employee profile")
     from app.services.compensation_service import get_employee_compensation
     return get_employee_compensation(db, current_user.employee_id)
+
+
+@router.get("/preferences", response_model=UserPreferencesOut)
+def my_preferences(current_user: User = Depends(get_current_user)):
+    return UserPreferencesOut(language_preference=current_user.language_preference)
+
+
+@router.patch("/preferences", response_model=UserPreferencesOut)
+def update_my_preferences(
+    data: UserPreferencesUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    current_user.language_preference = data.language_preference
+    db.commit()
+    db.refresh(current_user)
+    return UserPreferencesOut(language_preference=current_user.language_preference)
