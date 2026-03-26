@@ -109,4 +109,25 @@ jobs:
 
       - name: Smoke test health endpoint
         if: ${{ vars.AZURE_WEBAPP_URL != '' }}
-        run: curl --fail --show-error --silent "${{ vars.AZURE_WEBAPP_URL }}/api/health"
+        shell: bash
+        run: |
+          health_url="${{ vars.AZURE_WEBAPP_URL }}/api/health"
+
+          for attempt in {1..18}; do
+            http_code="$(curl --silent --show-error --output /tmp/health-response.txt --write-out '%{http_code}' "$health_url" || true)"
+
+            if [[ "$http_code" == "200" ]]; then
+              cat /tmp/health-response.txt
+              exit 0
+            fi
+
+            echo "Health check attempt ${attempt}/18 returned HTTP ${http_code}."
+            cat /tmp/health-response.txt || true
+
+            if [[ "$attempt" -lt 18 ]]; then
+              sleep 10
+            fi
+          done
+
+          echo "Health check failed after waiting for the deployed app to warm up."
+          exit 1

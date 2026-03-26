@@ -1,37 +1,49 @@
+import type { Locator } from '@playwright/test';
 import { test, expect } from './fixtures';
 
 test.describe('Demo onboarding flow', () => {
   test('demo: HR can onboard a new employee and the employee can sign in', async ({ page, request, baseURL }) => {
+    test.setTimeout(120000);
+
     const uniqueSuffix = Date.now().toString().slice(-6);
     const firstName = `Demo${uniqueSuffix}`;
     const lastName = 'Hire';
     const fullName = `${firstName} ${lastName}`;
     const email = `demo.${uniqueSuffix}@ecm.com`;
     const password = 'Welcome123!';
+    const configuredTypingDelay = Number.parseInt(process.env.PLAYWRIGHT_TYPING_DELAY ?? '', 10);
+    const typingDelay = Number.isFinite(configuredTypingDelay) ? configuredTypingDelay : 80;
+
+    const typeSlowly = async (locator: Locator, value: string) => {
+      await locator.click();
+      await locator.fill('');
+      await locator.pressSequentially(value, { delay: typingDelay });
+    };
 
     const login = async (userEmail: string, userPassword: string) => {
       await page.goto('/login');
-      await page.fill('input[type="email"]', userEmail);
-      await page.fill('input[type="password"]', userPassword);
+      await page.selectOption('#language-selector-login', 'en');
+      await typeSlowly(page.locator('input[type="email"]'), userEmail);
+      await typeSlowly(page.locator('input[type="password"]'), userPassword);
       await page.click('button[type="submit"]');
     };
 
     const fillWizardField = async (label: string, value: string) => {
-      await page
+      const input = page
         .locator('label', { hasText: label })
         .locator('..')
-        .locator('input')
-        .fill(value);
+        .locator('input');
+      await typeSlowly(input, value);
     };
 
     await login('hr@ecm.com', 'admin123');
     await expect(page.getByText('HR Dashboard')).toBeVisible({ timeout: 10000 });
 
-    await page.click('text=Onboard');
+    await page.getByRole('link', { name: /Onboard|員工入職/ }).click();
     await expect(page.getByText('Onboard Employee')).toBeVisible();
 
-    await page.selectOption('select', { index: 1 });
-    await page.click('button:has-text("Next")');
+    await page.locator('main select').first().selectOption({ index: 1 });
+    await page.locator('main').getByRole('button', { name: /Next|下一步/ }).click();
 
     await expect(page.getByText('Personal Info')).toBeVisible();
     await fillWizardField('First Name', firstName);
@@ -43,10 +55,10 @@ test.describe('Demo onboarding flow', () => {
     await fillWizardField('Address', '123 Demo Street');
     await fillWizardField('City', 'Boston');
     await fillWizardField('Country', 'USA');
-    await page.click('button:has-text("Next")');
+    await page.locator('main').getByRole('button', { name: /Next|下一步/ }).click();
 
     await expect(page.getByText('Compensation', { exact: true })).toBeVisible();
-    await page.fill('input[type="number"]', '5000');
+    await typeSlowly(page.locator('main input[type="number"]').first(), '5000');
 
     const onboardResponsePromise = page.waitForResponse((response) =>
       response.request().method() === 'POST' &&
@@ -54,7 +66,7 @@ test.describe('Demo onboarding flow', () => {
       response.status() === 201,
     );
 
-    await page.click('button:has-text("Complete Onboarding")');
+    await page.getByRole('button', { name: /Complete Onboarding|完成入職/ }).click();
 
     const onboardResponse = await onboardResponsePromise;
     const employee = (await onboardResponse.json()) as {
@@ -64,7 +76,7 @@ test.describe('Demo onboarding flow', () => {
     };
 
     await expect(page.getByRole('heading', { name: 'Employees' })).toBeVisible({ timeout: 10000 });
-    await page.getByPlaceholder('Search by name or employee #...').fill(firstName);
+    await typeSlowly(page.getByPlaceholder(/Search by name or employee #\.\.\.|按姓名或員工編號搜尋\.\.\./), firstName);
     await expect(page.getByText(fullName)).toBeVisible({ timeout: 10000 });
     await expect(page.getByRole('link', { name: employee.employee_number })).toBeVisible();
 
@@ -102,5 +114,9 @@ test.describe('Demo onboarding flow', () => {
     await expect(page.getByText(fullName)).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
     await expect(page.getByText(employee.employee_number)).toBeVisible();
+
+    if (process.env.PLAYWRIGHT_VISUAL === '1') {
+      await page.pause();
+    }
   });
 });
