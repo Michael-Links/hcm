@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from app.database import engine, SessionLocal, Base
+from app.database import engine, SessionLocal, Base, ensure_user_language_preference_column
 from app.models.user import User, Role
 from app.models.organization import OrgGroup, Entity, Division, Department, Position
 from app.models.employee import Employee, PersonalInfo
@@ -19,6 +19,7 @@ from datetime import date
 
 def seed():
     Base.metadata.create_all(bind=engine)
+    ensure_user_language_preference_column()
     db = SessionLocal()
     try:
         # Only seed if no users exist
