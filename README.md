@@ -1,6 +1,6 @@
-# ECM — Employment Core Module (Phase 1)
+# Links One (Phase 1)
 
-A production-ready HR system for managing organizational hierarchy, employee onboarding, and self-service.
+A production-ready HR platform from Links International for managing organizational hierarchy, employee onboarding, and self-service.
 
 ## Quick Start
 
@@ -59,7 +59,23 @@ cd backend && python -m pytest tests/ -v
 
 # E2E tests (requires running system)
 cd e2e && npm install && npx playwright install && npx playwright test
+
+# Watch E2E tests run in a visible browser with a larger on-page cursor
+# Defaults to http://localhost:5137 and can be overridden with PLAYWRIGHT_BASE_URL
+cd e2e && npm run test:visible
 ```
+
+## Azure deployment
+
+This repo includes `.github/workflows/azure-deploy.yml` for GitHub Actions deployment to Azure App Service for Containers.
+
+The workflow:
+- runs backend tests
+- builds the frontend
+- builds and pushes the Docker image to Azure Container Registry
+- deploys the image to Azure App Service
+
+See `docs/07-docker-deployment.md` for the one-time Azure setup, GitHub secrets and variables, and SQLite persistence notes.
 
 ## Project Structure
 

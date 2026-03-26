@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "test": "npx playwright test",
-    "test:headed": "npx playwright test --headed"
+    "test:headed": "npx playwright test --headed",
+    "test:visible": "node .\\scripts\\run-visible.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1"

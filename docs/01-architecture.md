@@ -1,7 +1,7 @@
-# ECM Phase 1 – System Architecture
+# Links One – System Architecture
 
 ## Overview
-This system implements Phase 1 of a Global Employment Core Module (ECM).
+This system implements the Links One HR platform for organization management, onboarding, and employee self-service.
 
 The entire system runs in a single Docker container.
 

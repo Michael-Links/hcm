@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('Login', () => {
   test('should show login page', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.locator('h1')).toContainText('ECM');
+    await expect(page.locator('h1')).toContainText('Links One');
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
   });

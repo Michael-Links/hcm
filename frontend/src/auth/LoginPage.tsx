@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import BrandLockup from '../components/BrandLockup';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,11 +26,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4">
+      <div className="bg-white rounded-2xl shadow-xl ring-1 ring-primary-100 p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-700">ECM</h1>
-          <p className="text-gray-500 mt-1">Employment Core Module</p>
+          <BrandLockup variant="login" />
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (

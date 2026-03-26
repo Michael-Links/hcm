@@ -1,5 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
+const isVisualMode = process.env.PLAYWRIGHT_VISUAL === '1';
+const configuredSlowMo = Number.parseInt(process.env.PLAYWRIGHT_SLOWMO ?? '', 10);
+const slowMo = Number.isFinite(configuredSlowMo) ? configuredSlowMo : isVisualMode ? 250 : 0;
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -8,8 +12,10 @@ export default defineConfig({
   workers: 1,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:80',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:80',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    headless: !isVisualMode,
+    launchOptions: slowMo > 0 ? { slowMo } : undefined,
   },
 });

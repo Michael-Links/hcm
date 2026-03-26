@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import BrandLockup from '../components/BrandLockup';
 
 const navItems = [
   { to: '/', label: '📊 Dashboard', roles: ['HR'] },
@@ -23,8 +24,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col min-h-screen">
       <div className="p-6">
-        <h1 className="text-xl font-bold text-white">ECM</h1>
-        <p className="text-xs text-gray-500 mt-1">Employment Core Module</p>
+        <BrandLockup variant="sidebar" />
       </div>
       <nav className="flex-1 px-3">
         {visible.map((item) => (

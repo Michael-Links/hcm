@@ -22,7 +22,7 @@ from app.routers.leave import router as leave_router
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="ECM - Employment Core Module", version="1.0.0")
+app = FastAPI(title="Links One", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

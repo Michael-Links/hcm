@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import NotificationBell from '../components/NotificationBell';
+import BrandLockup from '../components/BrandLockup';
 
 export default function TopBar() {
   const { role, logout } = useAuth();
   const [showChangePw, setShowChangePw] = useState(false);
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-      <h2 className="text-lg font-semibold text-gray-800">ECM</h2>
+      <BrandLockup variant="topbar" />
       <div className="flex items-center gap-4">
         <span className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded-full font-medium">{role}</span>
         <NotificationBell />
